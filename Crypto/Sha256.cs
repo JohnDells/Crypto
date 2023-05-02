@@ -7,12 +7,20 @@ namespace Crypto
     {
         public static uint[] Hash(string message)
         {
-            var encoded = Encoding.ASCII.GetBytes(message); //  good
-            var padded = encoded.Pad();                     //  good
-            var converted = padded.ToUintArray();           //  good
-            //var schedule = converted.MessageSchedule();     //  only copies first 16 uints??
-            //var result = schedule.Compress();
-            return converted;
+            var encoded = Encoding.ASCII.GetBytes(message);
+            var padded = encoded.Pad();
+            var converted = padded.ToUintArray();
+            var blocks = converted.ToBlocks(16).ToList();
+            var schedule = blocks.Schedule().ToList();
+            var result = schedule.Compress();
+            return result;
+        }
+
+        public static byte[] Pad(string message)
+        {
+            var encoded = Encoding.ASCII.GetBytes(message);
+            var result = encoded.Pad();
+            return result;
         }
 
         public static byte[] Pad(this byte[] input)
@@ -42,26 +50,33 @@ namespace Crypto
             return result;
         }
 
-        public static uint[] Schedule(this uint[] input)
+        public static IEnumerable<uint[]> Schedule(this IEnumerable<uint[]> blocks)
         {
-            //  Input = [4 bytes (32 bits) * 16 rows] = 512 bits.
-            //  Output = [4 bytes (32 bits) * 64 rows] = 2,048 bits.
+            //  Input = [4 bytes (32 bits) * 16 uints] = 512 bits.
+            //  Output = [4 bytes (32 bits) * 64 uints] = 2,048 bits.
 
             //  256 bytes message schedule
             //  Each 4 bytes is a row W0, W1, to W64.
-            var W = new uint[64];
-
-            //  Copy the first 16 rows.
-            Buffer.BlockCopy(input, 0, W, 0, 16);
-
-            for (var t = 16; t < 64; t++)
+            var result = new List<uint[]>();
+            foreach (var block in blocks)
             {
-                W[t] = BMath.σ1(W[t - 2]) + W[t - 7] + BMath.σ0(W[t - 15]) + W[t - 16];
+                if (block.Length != 16) throw new ArgumentException("Blocks must be 16 uints long.");
+                var W = new uint[64];
+
+                //  16 rows of 4 bytes = 64.
+                Buffer.BlockCopy(block, 0, W, 0, 64);
+
+                for (var t = 16; t < 64; t++)
+                {
+                    W[t] = BMath.σ1(W[t - 2]) + W[t - 7] + BMath.σ0(W[t - 15]) + W[t - 16];
+                }
+
+                result.Add(W);
             }
-            return W;
+            return result;
         }
 
-        public static uint[] Compress(this uint[] data)
+        public static uint[] Compress(this IEnumerable<uint[]> blocks)
         {
             //  data should be 64 words of 32 bits each.
 
@@ -80,8 +95,7 @@ namespace Crypto
 
             //  Each input block is 2048 bits, 64 uints long.
 
-            var blocks = data.Length.Chunks(64);
-            for (var block = 0; block < blocks; block++)
+            foreach (var block in blocks)
             {
                 var a0 = a;
                 var b0 = b;
@@ -92,11 +106,9 @@ namespace Crypto
                 var g0 = g;
                 var h0 = h;
 
-                var offsetStart = block * 64;
                 for (var x = 0; x < 64; x++)
                 {
-                    var offset = x + offsetStart;
-                    var W = data[offset];
+                    var W = block[x];
 
                     var K = constants[x];
                     var T1 = BMath.Σ1(e) + BMath.Ch(e, f, g) + h + K + W;

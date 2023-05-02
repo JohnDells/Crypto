@@ -4,12 +4,12 @@
     {
         public static uint[] ToUintArray(this byte[] data)
         {
-            var dataLength = data.Length;
-            var length = dataLength.Chunks(4);
-            var result = new uint[length];
+            var dataLengthBytes = data.Length;
+            var resultLengthUints = dataLengthBytes.Chunks(4);
+            var result = new uint[resultLengthUints];
 
             var count = 0;
-            for (var i = 0; i < dataLength; i++)
+            for (var i = 0; i < dataLengthBytes; i++)
             {
                 var mod = i % 4;
                 var shift = 8 * (3 - mod);
@@ -26,7 +26,7 @@
             return ((totalLength - 1) / chunkLength) + 1;
         }
 
-        public static IEnumerable<uint[]> Blocks(this uint[] data, int size)
+        public static IEnumerable<uint[]> ToBlocks(this uint[] data, int size)
         {
             var chunks = data.Length.Chunks(size);
             //  TRICKY:  BlockCopy assumes bytes (8 bits), but we need to copy 32 bit uints.

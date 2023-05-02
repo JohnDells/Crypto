@@ -8,7 +8,7 @@ namespace CryptoTest
         public void Chunks_Should_Chunks()
         {
             var data = new uint[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-            var blocks = data.Blocks(4).ToList();
+            var blocks = data.ToBlocks(4).ToList();
         }
         [Fact]
         public void Sha256_Should_Hash_abc()
@@ -53,15 +53,15 @@ namespace CryptoTest
         public void Sha256_Should_Hash_57()
         {
             //  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-            //  b35439a4ac6f0948b6d6f9e3c6af0f5f590ce20f1bde7090ef7970686ec6738a
+            //  f13b2d724659eb3bf47f2dd6af1accc87b81f09f59f2b75e5c0bed6589dfe8c6
             Assert.Equal("f13b2d724659eb3bf47f2dd6af1accc87b81f09f59f2b75e5c0bed6589dfe8c6", Sha256.Hash(new String('a', 57)).HexString().ToLower());
         }
         [Fact]
         public void Sha256_Should_Hash_128()
         {
-            //  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+            //  aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
             //  6836cf13bac400e9105071cd6af47084dfacad4e5e302c94bfed24e013afb73e
-            Assert.Equal("f13b2d724659eb3bf47f2dd6af1accc87b81f09f59f2b75e5c0bed6589dfe8c6", Sha256.Hash(new String('a', 128)).HexString().ToLower());
+            Assert.Equal("6836cf13bac400e9105071cd6af47084dfacad4e5e302c94bfed24e013afb73e", Sha256.Hash(new String('a', 128)).HexString().ToLower());
         }
     }
 }
