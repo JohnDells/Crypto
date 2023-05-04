@@ -84,5 +84,65 @@
             var c = value.RotateRight(25);
             return a.Xor(b, c);
         }
+
+        public static uint PowerMod(this uint value, uint power, uint mod)
+        {
+            //  We use the power squares algorithm:
+            //  x^15 mod m = x^(1+2+4+8) mod m = (x^1 mod m) * (x^2 mod m) * etc.
+            //  where each multiplier can be modded individually to keep the math fast.
+
+            uint result = 1;
+            uint running = value;
+            for (var i = 0; i < 32; i++)
+            {
+                var shift = (power >> i);
+                if (shift == 0) break;
+                var theBit = shift & 0b1;
+                if (theBit == 1)
+                {
+                    result = (result * running) % mod;
+                }
+
+                //  Square running every loop.
+                running = (running * running) % mod;
+            }
+
+            return result;
+        }
+
+        public static bool MillerRabinPrimeTest(this uint value)
+        {
+            //  0.  Is 53 prime?  (n = 53)
+            //  1.  Find n-1 = 2^k * m  (k and m are whole numbers)
+            //      a.  Divide n-1 by 2^1, 2^2, 2^3 until you get a non-whole number.
+            //      b.  52 = 2^2 * 13 = 4 * 13, so k = 2
+            //  2.  Choose a:  1 < a < n-1
+            //      a.  Pick a = 2  (between 1 and 52)
+            //  3.  Compute b[0] = a^m (mod n), b[i] = b[i-1]^2
+            //      a.  b[0] = 2^13 mod 53 = 8192 mod 53 = 30
+            //      b.  if b[0] is 1 or -1, then it is prime (probably).
+            //          * b[0] is the only step where +1 or -1 mean prime.
+            //      c.  if not, we move to b[1] = b[0] ^ 2 mod 53 = 52 (-1)
+            //      d.  +1 means it is composite, -1 means it is prime.
+            //  4.  If it's neither, we keep going.
+
+            var k = (uint)1;
+            for (var i = 1; i < 64; i++)
+            {
+                k = k << 1;
+            }
+
+            return false;
+        }
+
+        public static bool IsPrimeBruteForce(this uint value)
+        {
+            var sqrt = Math.Sqrt(value);
+            for (var i = 2; i <= sqrt; i++)
+            {
+                if (value % i == 0) return false;
+            }
+            return true;
+        }
     }
 }
