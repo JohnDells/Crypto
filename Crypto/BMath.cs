@@ -85,14 +85,16 @@
             return a.Xor(b, c);
         }
 
-        public static uint PowerMod(this uint value, uint power, uint mod)
+        public static uint PowerMod(this uint a, uint power, uint mod)
         {
             //  We use the power squares algorithm:
             //  x^15 mod m = x^(1+2+4+8) mod m = (x^1 mod m) * (x^2 mod m) * etc.
             //  where each multiplier can be modded individually to keep the math fast.
 
-            uint result = 1;
-            uint running = value;
+            //  TRICKY:  To multiple 32-bit uints, we need a 64-bit ulong to hold them.
+            //      Once we're done and we mod to a 32-bit uint, the result will be a uint.
+            ulong result = 1;
+            ulong running = a;
             for (var i = 0; i < 32; i++)
             {
                 var shift = (power >> i);
@@ -107,80 +109,14 @@
                 running = (running * running) % mod;
             }
 
-            return result;
+            return (uint)result;
         }
 
-        public static bool IsPrimeMillerRabin(this uint[] n)
-        {
-            //  uint is 32 bits
-            return false;
-        }
-
-        public static bool IsPrimeMillerRabin(this uint n)
-        {
-            //  0.  Is 53 prime?  (n = 53)
-            //  1.  Find n-1 = 2^k * m  (k and m are whole numbers)
-            //      a.  Divide n-1 by 2^1, 2^2, 2^3 until you get a non-whole number.
-            //      b.  52 = 2^2 * 13 = 4 * 13, so k = 2
-            //  2.  Choose a:  1 < a < n-1
-            //      a.  Pick a = 2  (between 1 and 52)
-            //  3.  Compute b[0] = a^m (mod n), b[i] = b[i-1]^2
-            //      a.  b[0] = 2^13 mod 53 = 8192 mod 53 = 30
-            //      b.  if b[0] is 1 or -1, then it is prime (probably).
-            //          * b[0] is the only step where +1 or -1 mean prime.
-            //      c.  if not, we move to b[1] = b[0] ^ 2 mod 53 = 52 (-1)
-            //      d.  +1 means it is composite, -1 means it is prime.
-            //  4.  If it's neither, we keep going.
-
-            //  Find largest k such that:  n-1 = 2^k * m
-            //  (m must be an odd number)
-            var k = 0;
-            var foo = n - 1;
-            while ((foo & 0b1) == 0)
-            {
-                foo = foo >> 1;
-                k++;
-            }
-            var m = (uint)(n - 1) / (uint)Math.Pow(2, k);
-
-            //  Choose a such that 1 < a < n
-            var a = RandomRange(2, (int)(n - 1));
-            var b0 = ((uint)a).PowerMod(m, n);
-            if (b0 != 1 && b0 != (n - 1))
-            {
-                var b1 = b0.PowerMod(2, n);
-                if (b1 != 1 && b1 != (n - 1))
-                {
-                    var b2 = b1.PowerMod(2, n);
-                    if (b2 != 1 && b2 != (n - 1))
-                    {
-                        var b3 = b2.PowerMod(2, n);
-                        if (b3 == 1)
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        private static int RandomRange(int min, int max)
+        public static int RandomRange(int min, int max)
         {
             var random = new Random((int)(DateTime.Now.Ticks & 0b1111111111111111));
             var result = random.Next(min, max);
             return result;
-        }
-
-        public static bool IsPrimeBruteForce(this uint value)
-        {
-            var sqrt = Math.Sqrt(value);
-            for (var i = 2; i <= sqrt; i++)
-            {
-                if (value % i == 0) return false;
-            }
-            return true;
         }
 
         public static uint GCD(uint value1, uint value2)
@@ -212,8 +148,6 @@
 
             //  This gives 8 uints (256 bits).
             var result = Sha256.Hash(bytes);
-
-
 
             return result;
         }

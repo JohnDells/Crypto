@@ -64,11 +64,12 @@ namespace CryptoTest
         [Fact]
         public void IsPrimeBruteForce_Should_Work()
         {
-            Assert.True(((uint)7).IsPrimeBruteForce());
-            Assert.False(((uint)8).IsPrimeBruteForce());
-            Assert.False(((uint)9).IsPrimeBruteForce());
-            Assert.False(((uint)10).IsPrimeBruteForce());
-            Assert.True(((uint)11).IsPrimeBruteForce());
+            var test = new BrutePrimeTest();
+            Assert.True(test.IsPrime((uint)7));
+            Assert.False(test.IsPrime((uint)8));
+            Assert.False(test.IsPrime((uint)9));
+            Assert.False(test.IsPrime((uint)10));
+            Assert.True(test.IsPrime((uint)11));
         }
 
         [Fact]
@@ -89,16 +90,6 @@ namespace CryptoTest
             Assert.Equal((uint)2, BMath.GCD((uint)2, (uint)2));
         }
 
-        [Fact]
-        public void MillerRabin_Test_1()
-        {
-            Assert.True(((uint)11).IsPrimeMillerRabin());
-        }
-        [Fact]
-        public void MillerRabin_Test_561()
-        {
-            Assert.False(((uint)561).IsPrimeMillerRabin());
-        }
         [Fact]
         public void Random_Should_Work()
         {
