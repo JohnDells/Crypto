@@ -45,5 +45,14 @@
             var result = (uint)(input * Math.Pow(2, 32));
             return result;
         }
+
+        public static uint Random1()
+        {
+            return 7;
+        }
+        public static uint Random2()
+        {
+            return 19;
+        }
     }
 }

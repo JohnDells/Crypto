@@ -110,7 +110,13 @@
             return result;
         }
 
-        public static bool MillerRabinPrimeTest(this uint value)
+        public static bool IsPrimeMillerRabin(this uint[] n)
+        {
+            //  uint is 32 bits
+            return false;
+        }
+
+        public static bool IsPrimeMillerRabin(this uint n)
         {
             //  0.  Is 53 prime?  (n = 53)
             //  1.  Find n-1 = 2^k * m  (k and m are whole numbers)
@@ -126,13 +132,45 @@
             //      d.  +1 means it is composite, -1 means it is prime.
             //  4.  If it's neither, we keep going.
 
-            var k = (uint)1;
-            for (var i = 1; i < 64; i++)
+            //  Find largest k such that:  n-1 = 2^k * m
+            //  (m must be an odd number)
+            var k = 0;
+            var foo = n - 1;
+            while ((foo & 0b1) == 0)
             {
-                k = k << 1;
+                foo = foo >> 1;
+                k++;
+            }
+            var m = (uint)(n - 1) / (uint)Math.Pow(2, k);
+
+            //  Choose a such that 1 < a < n
+            var a = RandomRange(2, (int)(n - 1));
+            var b0 = ((uint)a).PowerMod(m, n);
+            if (b0 != 1 && b0 != (n - 1))
+            {
+                var b1 = b0.PowerMod(2, n);
+                if (b1 != 1 && b1 != (n - 1))
+                {
+                    var b2 = b1.PowerMod(2, n);
+                    if (b2 != 1 && b2 != (n - 1))
+                    {
+                        var b3 = b2.PowerMod(2, n);
+                        if (b3 == 1)
+                        {
+                            return false;
+                        }
+                    }
+                }
             }
 
-            return false;
+            return true;
+        }
+
+        private static int RandomRange(int min, int max)
+        {
+            var random = new Random((int)(DateTime.Now.Ticks & 0b1111111111111111));
+            var result = random.Next(min, max);
+            return result;
         }
 
         public static bool IsPrimeBruteForce(this uint value)
@@ -143,6 +181,41 @@
                 if (value % i == 0) return false;
             }
             return true;
+        }
+
+        public static uint GCD(uint value1, uint value2)
+        {
+            if (value1 == 0 || value2 == 0) throw new ArgumentException("There is no GCD for zero.");
+            //  Given value2 < value1, divide value1 by value2, then value2 by the remainder, until you get zero.
+            //  i.e.  GCD(40, 30) ->  40 % 30 = 10.  30 % 10 = 0.  Therefore, the GCD = 10.
+
+            var firstGreater = value1 > value2;
+            var a = firstGreater ? value1 : value2;
+            var b = firstGreater ? value2 : value1;
+
+            while (true)
+            {
+                var r = a % b;
+                if (r == 0) return b;
+                a = b;
+                b = r;
+            }
+        }
+
+        public static uint[] Random()
+        {
+            //  long = 64 bits
+            //  For RSA we need a key size of 512 bits  (64 bytes = 16 uints)
+            var foo = (uint)DateTime.Now.Ticks;
+            //  i.e.  621 476 824 ~ 2^29  (29 bits)
+            var bytes = new uint[] { foo }.ToByteArray();
+
+            //  This gives 8 uints (256 bits).
+            var result = Sha256.Hash(bytes);
+
+
+
+            return result;
         }
     }
 }

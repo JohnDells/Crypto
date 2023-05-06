@@ -8,7 +8,12 @@ namespace Crypto
         public static uint[] Hash(string message)
         {
             var encoded = Encoding.ASCII.GetBytes(message);
-            var padded = encoded.Pad();
+            return Hash(encoded);
+        }
+
+        public static uint[] Hash(byte[] input)
+        {
+            var padded = input.Pad();
             var converted = padded.ToUintArray();
             var blocks = converted.ToBlocks(16).ToList();
             var schedule = blocks.Schedule().ToList();

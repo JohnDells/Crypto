@@ -30,16 +30,19 @@ namespace CryptoTest
         {
             Assert.Equal((uint)2, ((uint)2).PowerMod(1, 5));
         }
+
         [Fact]
         public void PowerMod_Should_2_2_Mod5()
         {
             Assert.Equal((uint)4, ((uint)2).PowerMod(2, 5));
         }
+
         [Fact]
         public void PowerMod_Should_2_3_Mod5()
         {
             Assert.Equal((uint)3, ((uint)2).PowerMod(3, 5));
         }
+
         [Fact]
         public void PowerMod_Should_2_4_Mod5()
         {
@@ -58,7 +61,6 @@ namespace CryptoTest
             Assert.Equal((uint)11, ((uint)1234567891).PowerMod(182299883, 12));
         }
 
-
         [Fact]
         public void IsPrimeBruteForce_Should_Work()
         {
@@ -67,6 +69,40 @@ namespace CryptoTest
             Assert.False(((uint)9).IsPrimeBruteForce());
             Assert.False(((uint)10).IsPrimeBruteForce());
             Assert.True(((uint)11).IsPrimeBruteForce());
+        }
+
+        [Fact]
+        public void GCD_Should_40_30()
+        {
+            Assert.Equal((uint)10, BMath.GCD((uint)40, (uint)30));
+        }
+
+        [Fact]
+        public void GCD_Should_21_28()
+        {
+            Assert.Equal((uint)7, BMath.GCD((uint)21, (uint)28));
+        }
+
+        [Fact]
+        public void GCD_Should_2_2()
+        {
+            Assert.Equal((uint)2, BMath.GCD((uint)2, (uint)2));
+        }
+
+        [Fact]
+        public void MillerRabin_Test_1()
+        {
+            Assert.True(((uint)11).IsPrimeMillerRabin());
+        }
+        [Fact]
+        public void MillerRabin_Test_561()
+        {
+            Assert.False(((uint)561).IsPrimeMillerRabin());
+        }
+        [Fact]
+        public void Random_Should_Work()
+        {
+            var foo = BMath.Random();
         }
     }
 }
