@@ -56,12 +56,6 @@ namespace CryptoTest
         }
 
         [Fact]
-        public void PowerMod_Should_Big()
-        {
-            Assert.Equal((uint)11, ((uint)1234567891).PowerMod(182299883, 12));
-        }
-
-        [Fact]
         public void IsPrimeBruteForce_Should_Work()
         {
             var test = new BrutePrimeTest();

@@ -11,10 +11,11 @@ namespace Crypto
     {
         public static (uint sk, uint pk, uint mod) Generate()
         {
+            var generator = new RandomPrimeGenerator();
             //  Choose two large primes p and q.
             //  They should be about the same length, about 512 bits each.
-            var p = Primes.Random1();
-            var q = Primes.Random2();
+            var p = generator.Generate();
+            var q = generator.Generate();
             //  n should be about 1024 bits.
             var n = p * q;
             var t = (p - 1) * (q - 1);
